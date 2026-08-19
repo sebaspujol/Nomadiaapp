@@ -130,8 +130,8 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
       className: '',
       html: `<div style="width:14px;height:14px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 0 6px rgba(59,130,246,.2);"></div>`,
       iconSize: [14, 14],
-      iconAnchor: [7,] 7],
-    })
+      iconAnchor: [7, 7],
+        })
     userMarker.current = L.marker([userLocation.lat, userLocation.lng], { icon, zIndexOffset: 999 }).addTo(mapInstance.current)
 
     // El círculo muestra el margen de error real del GPS/wifi del dispositivo
@@ -139,7 +139,7 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
     // en vez de fingir una precisión exacta que a veces no es real.
     if (accuracy && accuracy > 0) {
       userAccuracyCircle.current = L.circle([userLocation.lat, userLocation.lng], {
-        radios: accuracy,
+        radius: accuracy,
         color: '#3B82F6',
         weight: 1,
         fillColor: '#3B82F6',
