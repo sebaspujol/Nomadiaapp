@@ -3,6 +3,15 @@
 // API key ni tarjeta de crédito (a diferencia de Google Maps JS API). La
 // atribución "© OpenStreetMap contributors" que se ve abajo a la derecha es
 // obligatoria por la licencia de los datos, no se puede ocultar.
+//
+// Con muchos lugares cerca (ciudades grandes, zonas densas), mostrar un pin
+// por lugar generaba una alfombra ilegible de chips superpuestos. Ahora los
+// pines cercanos se agrupan en "clusters" (círculo con un número) que se
+// separan solos a medida que hacés zoom o los tocás — el mismo patrón que
+// Google Maps o Airbnb usan para esto (vía leaflet.markercluster, también
+// gratis y open-source). Cada pin individual quedó reducido a un círculo
+// con el emoji de la categoría, sin precio ni texto — el detalle completo
+// se ve en el panel lateral al hacer click.
 import { useEffect, useRef, useState } from 'react'
 import styles from './Map.module.css'
 
@@ -13,6 +22,13 @@ const TYPE_COLORS = {
   biblioteca: '#C0574F',
 }
 
+const TYPE_EMOJI = {
+  cafe: '☕',
+  cowork: '🧑‍💻',
+  hotel: '🏨',
+  biblioteca: '📚',
+}
+
 const LEGEND = [
   { tipo: 'cafe', label: 'Cafés' },
   { tipo: 'cowork', label: 'Coworks' },
@@ -20,40 +36,52 @@ const LEGEND = [
   { tipo: 'biblioteca', label: 'Bibliotecas' },
 ]
 
-function pinLabel(place) {
-  if (!place.verified) return place.precio || 'Sin verificar'
-  if (place.rating) return `★${place.rating}`
-  if (place.gratis) return 'Gratis'
-  return place.precio || ''
+function pinEmoji(place) {
+  return place.emoji || TYPE_EMOJI[place.tipo] || '📍'
 }
 
+// Pin individual: círculo chico con el emoji de la categoría. Los verificados
+// (con reviews reales de la comunidad) llevan el borde del color de su
+// categoría; los importados de OpenStreetMap sin verificar todavía, un
+// borde gris neutro.
 function pinHtml(place) {
-  const color = place.verified === false ? '#fff' : (TYPE_COLORS[place.tipo] || '#888')
   const bg = place.verified === false ? '#fff' : '#111827'
-  const textColor = place.verified === false ? '#6B7280' : '#fff'
-  const border = place.verified === false ? '1.5px solid #EAE8E3' : 'none'
+  const border = place.verified === false ? '2px solid #D8D5CC' : `2px solid ${TYPE_COLORS[place.tipo] || '#888'}`
   return `
-    <div style="position:relative;display:flex;align-items:center;gap:7px;background:${bg};color:${textColor};border:${border};border-radius:999px;padding:8px 13px 8px 10px;font-size:12.5px;font-weight:700;font-family:'JetBrains Mono',monospace;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.2);">
-      <span style="width:9px;height:9px;border-radius:50%;background:${color};flex-shrink:0;${place.verified === false ? 'border:1px solid #ccc;' : ''}"></span>
-      ${pinLabel(place)}
+    <div style="width:32px;height:32px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 10px rgba(0,0,0,.22);">
+      ${pinEmoji(place)}
     </div>
   `
 }
 
-export default function Map({ places, selected, onSelect, userLocation, loading }) {
+// Ícono de un cluster (grupo de pines cercanos): círculo oscuro con la
+// cantidad de lugares que agrupa. Crece un poco con la cantidad para que se
+// note la diferencia entre una zona con 5 lugares y una con 80.
+function clusterIconHtml(count) {
+  const size = count < 10 ? 34 : count < 50 ? 42 : 50
+  return {
+    size,
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;background:#111827;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.3);border:2px solid #fff;">${count}</div>`,
+  }
+}
+
+export default function Map({ places, selected, onSelect, userLocation, accuracy, loading }) {
   const mapRef = useRef(null)
   const mapInstance = useRef(null)
   const leafletRef = useRef(null)
-  const markers = useRef([])
+  const clusterGroup = useRef(null)
   const userMarker = useRef(null)
+  const userAccuracyCircle = useRef(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
 
-  // Cargar Leaflet dinámicamente (no funciona en SSR, necesita `window`).
+  // Cargar Leaflet + el plugin de clustering dinámicamente (no funcionan en
+  // SSR, necesitan `window`). El plugin se engancha al mismo objeto L de
+  // leaflet, por eso hay que cargar los dos juntos antes de usar cualquiera.
   useEffect(() => {
     let cancelled = false
-    import('leaflet')
-      .then((L) => {
+    Promise.all([import('leaflet'), import('leaflet.markercluster')])
+      .then(([L]) => {
         if (cancelled) return
         leafletRef.current = L
         setReady(true)
@@ -86,11 +114,12 @@ export default function Map({ places, selected, onSelect, userLocation, loading 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready])
 
-  // Marcador de usuario
+  // Marcador de usuario (+ círculo de precisión, si el navegador la reportó)
   useEffect(() => {
     if (!mapInstance.current || !ready) return
     const L = leafletRef.current
     if (userMarker.current) userMarker.current.remove()
+    if (userAccuracyCircle.current) userAccuracyCircle.current.remove()
 
     const icon = L.divIcon({
       className: '',
@@ -99,28 +128,57 @@ export default function Map({ places, selected, onSelect, userLocation, loading 
       iconAnchor: [7, 7],
     })
     userMarker.current = L.marker([userLocation.lat, userLocation.lng], { icon, zIndexOffset: 999 }).addTo(mapInstance.current)
-    mapInstance.current.setView([userLocation.lat, userLocation.lng])
-  }, [userLocation, ready])
 
-  // Markers de lugares
+    // El círculo muestra el margen de error real del GPS/wifi del dispositivo
+    // (accuracy viene en metros) — así se ve honestamente qué tan preciso es,
+    // en vez de fingir una precisión exacta que a veces no es real.
+    if (accuracy && accuracy > 0) {
+      userAccuracyCircle.current = L.circle([userLocation.lat, userLocation.lng], {
+        radius: accuracy,
+        color: '#3B82F6',
+        weight: 1,
+        fillColor: '#3B82F6',
+        fillOpacity: 0.08,
+      }).addTo(mapInstance.current)
+    }
+
+    mapInstance.current.setView([userLocation.lat, userLocation.lng])
+  }, [userLocation, accuracy, ready])
+
+  // Markers de lugares, agrupados en clusters
   useEffect(() => {
     if (!mapInstance.current || !ready) return
     const L = leafletRef.current
-    markers.current.forEach((m) => m.remove())
-    markers.current = []
+
+    if (clusterGroup.current) {
+      clusterGroup.current.clearLayers()
+      mapInstance.current.removeLayer(clusterGroup.current)
+    }
+
+    const group = L.markerClusterGroup({
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
+      maxClusterRadius: 55,
+      iconCreateFunction: (cluster) => {
+        const { size, html } = clusterIconHtml(cluster.getChildCount())
+        return L.divIcon({ html, className: '', iconSize: [size, size] })
+      },
+    })
 
     places.forEach((place) => {
       const icon = L.divIcon({
         className: '',
         html: pinHtml(place),
-        iconSize: null,
-        iconAnchor: [20, 34],
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       })
       const marker = L.marker([place.lat, place.lng], { icon, title: place.nombre })
       marker.on('click', () => onSelect(place))
-      marker.addTo(mapInstance.current)
-      markers.current.push(marker)
+      group.addLayer(marker)
     })
+
+    group.addTo(mapInstance.current)
+    clusterGroup.current = group
   }, [places, ready])
 
   // Centrar en seleccionado
@@ -196,7 +254,7 @@ function StaticMap({ places, selected, onSelect, loading }) {
           >
             <div className={styles.bubble}>
               <span className={styles.catDot} style={{ background: color }} />
-              {pinLabel(p)}
+              {pinEmoji(p)}
             </div>
           </div>
         )

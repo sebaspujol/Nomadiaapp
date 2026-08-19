@@ -7,6 +7,11 @@ import { authOptions } from '../../auth/[...nextauth]/route'
 import { isAdminSession } from '../../../../lib/adminAuth'
 import prisma from '../../../../lib/prisma'
 
+// Esta ruta lee la sesión (cookies/headers) en cada request, así que nunca
+// se puede pre-renderizar de forma estática — sin esto, Next.js tira
+// "Dynamic server usage" en producción y la ruta falla.
+export const dynamic = 'force-dynamic'
+
 const DAY_MS = 24 * 60 * 60 * 1000
 
 function daysAgo(n) {

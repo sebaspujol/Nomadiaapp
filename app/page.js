@@ -12,6 +12,7 @@ export default function Home() {
   const [filtered, setFiltered] = useState([])
   const [selected, setSelected] = useState(null)
   const [userLocation, setUserLocation] = useState({ lat: 40.4168, lng: -3.7038 }) // Madrid centro default
+  const [accuracy, setAccuracy] = useState(null)
   const [loading, setLoading] = useState(false)
   const [showAddPlace, setShowAddPlace] = useState(false)
   const [filters, setFilters] = useState({
@@ -25,14 +26,20 @@ export default function Home() {
     mesa: false,
   })
 
-  // Geolocalización del usuario
+  // Geolocalización del usuario. enableHighAccuracy le pide al dispositivo
+  // que use GPS en vez de solo wifi/torres de celular cuando esté disponible
+  // — tarda un poco más en responder, pero ubica a la persona en su cuadra
+  // real y no "en algún lugar del barrio". accuracy (metros) queda guardada
+  // para dibujar el círculo de margen de error real en el mapa.
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+          setAccuracy(pos.coords.accuracy || null)
         },
-        () => {} // fallback silencioso a Madrid centro
+        () => {}, // fallback silencioso a Madrid centro
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
       )
     }
   }, [])
@@ -108,6 +115,7 @@ export default function Home() {
           selected={selected}
           onSelect={setSelected}
           userLocation={userLocation}
+          accuracy={accuracy}
           loading={loading}
         />
       </div>
