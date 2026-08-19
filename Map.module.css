@@ -1,0 +1,103 @@
+.mapPane {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #EEF0EA;
+}
+
+.map { width: 100%; height: 100%; }
+
+.bg { width: 100%; height: 100%; display: block; }
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform .15s;
+}
+.pin:hover { z-index: 5; }
+
+.bubble {
+  position: relative;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 999px;
+  padding: 8px 13px 8px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+  white-space: nowrap;
+}
+.bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  width: 9px;
+  height: 9px;
+  background: inherit;
+  border-radius: 0 0 3px 0;
+  rotate: 45deg;
+  box-shadow: 2px 2px 3px rgba(0,0,0,.1);
+}
+
+.catDot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.pin.active .bubble, .pin:hover .bubble { background: var(--accent-d); }
+.pin.unverified .bubble { background: #fff; color: var(--muted); border: 1.5px solid var(--line); }
+.pin.unverified .bubble::after { border: 1.5px solid var(--line); border-top: none; border-left: none; }
+
+.legend {
+  position: absolute; left: 18px; bottom: 26px; background: #fff; border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.12); padding: 10px 14px; font-size: 11.5px; font-weight: 600;
+  color: #374151; display: flex; flex-direction: column; gap: 6px; z-index: 4;
+}
+.legend div { display: flex; align-items: center; gap: 7px; }
+.legend .catDot { width: 8px; height: 8px; }
+
+.zoomCtl {
+  position: absolute; right: 18px; bottom: 26px; background: #fff; border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.12); overflow: hidden; z-index: 4;
+}
+.zoomCtl button { display: block; width: 38px; height: 38px; font-size: 16px; border-bottom: 1px solid var(--line); color: #374151; }
+.zoomCtl button:last-child { border-bottom: none; }
+
+.userDot {
+  position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #3B82F6;
+  border: 3px solid #fff; left: 44%; top: 52%; transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 6px rgba(59,130,246,.2);
+}
+
+/* Ajustes puntuales sobre el CSS de Leaflet, para que combine con el resto
+   de la app. La atribución a OpenStreetMap no se puede ocultar (es requisito
+   de la licencia de los datos), solo la estilizamos más chica y discreta. */
+.map :global(.leaflet-control-attribution) {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 6px 0 0 0;
+}
+.map :global(.leaflet-control-zoom) { display: none; }
+.map :global(.leaflet-bottom.leaflet-right) { margin-right: 74px; }
+
+.loading {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}

@@ -1,0 +1,111 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 16px;
+  border: 0.5px solid var(--border);
+  padding: 40px 36px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+.logo span { color: var(--acc); }
+
+.subtitle {
+  font-size: 14px;
+  color: var(--mid);
+  margin-bottom: 28px;
+}
+
+.googleBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 11px;
+  border-radius: 10px;
+  border: 0.5px solid var(--border);
+  background: var(--surface);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--dark);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.googleBtn:hover { background: var(--bg); }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--light);
+  font-size: 12px;
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 0.5px;
+  background: var(--border);
+}
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 13px; font-weight: 500; color: var(--dark); }
+.field input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 0.5px solid var(--border);
+  background: var(--bg);
+  font-size: 14px;
+  color: var(--dark);
+  outline: none;
+}
+.field input:focus { border-color: var(--acc); }
+
+.error {
+  font-size: 13px;
+  color: var(--cor);
+  background: var(--cor-l);
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background: var(--dark);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.submitBtn:disabled { opacity: 0.6; }
+
+.footer {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--mid);
+  text-align: center;
+}
+.link { color: var(--acc); font-weight: 500; }

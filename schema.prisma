@@ -1,0 +1,191 @@
+// prisma/schema.prisma
+// Base de datos de Nomadia
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String?  // null si usa OAuth (Gmail)
+  image     String?
+  role      String   @default("user") // "user" | "store_owner" | "admin"
+  bio       String?
+  jobRole   String?  // "Diseñador", "Dev", "Founder", etc.
+  createdAt DateTime @default(now())
+
+  // Puntos (en centésimas: 100 = 1.00 punto). Sin canje todavía, pero
+  // el saldo y el historial se guardan desde el día uno.
+  pointsBalance Int @default(0)
+
+  checkins  Checkin[]
+  reviews   Review[]
+  stores    Store[]  // tiendas que gestiona
+  pointsTx  PointsTransaction[]
+
+  accounts  Account[] // OAuth accounts (NextAuth)
+  sessions  Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Store {
+  id          String   @id @default(cuid())
+  ownerId     String?  // null para locales importados de Google que nadie reclamó todavía
+  nombre      String
+  tipo        String   // cafe | cowork | hotel | biblioteca
+  direccion   String
+  barrio      String
+  ciudad      String?
+  lat         Float
+  lng         Float
+  descripcion String?
+  telefono    String?
+  website     String?
+  instagram   String?
+
+  // Horario
+  abre        Int      @default(8)  // hora apertura
+  cierra      Int      @default(22) // hora cierre
+
+  // Características declaradas por el dueño
+  enchufes    Int      @default(0)
+  wifi        String?  // velocidad en Mbps
+  precioMin   Float?   // precio mínimo consumición
+  gratis      Boolean  @default(false)
+  silencio    Boolean  @default(false) // ambiente silencioso (declarado por el dueño)
+  mesaLarga   Boolean  @default(false)
+  tiempoMax   String?  // "Sin límite", "2h máx", etc. (declarado por el dueño)
+  consumoMin  String?  // (declarado por el dueño)
+
+  // Fotos
+  photoUrl       String?
+  menuItems      MenuItem[]
+  lastMenuUpdate DateTime?
+
+  // Origen y deduplicación contra Google Places
+  source        String  @default("user") // "user" | "osm" (importado de OpenStreetMap)
+  googlePlaceId String? @unique // id externo para deduplicar (hoy: "osm:<id>" de OpenStreetMap). El nombre quedó de cuando usábamos Google Places, pero cambiarlo requeriría una migración — no vale la pena solo por el nombre.
+
+  // Agregados calculados a partir de las reviews de la comunidad
+  ratingAvg   Float? @default(0)
+  reviewCount Int    @default(0)
+
+  // Relaciones
+  owner    User?    @relation(fields: [ownerId], references: [id])
+  checkins Checkin[]
+  reviews  Review[]
+  pointsTx PointsTransaction[]
+
+  // Meta
+  verified  Boolean  @default(false) // true en cuanto tiene al menos 1 review real
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([lat, lng])
+}
+
+model MenuItem {
+  id        String  @id @default(cuid())
+  storeId   String
+  nombre    String
+  precio    Float?
+  categoria String? // "Bebidas", "Comida", "Postres"
+  store     Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+}
+
+model Checkin {
+  id        String    @id @default(cuid())
+  userId    String
+  storeId   String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime  // check-in dura 4 horas por defecto
+  closedAt  DateTime? // check-out manual, si la persona lo cierra antes de expirar
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store  Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  review Review? // la review (si existe) de esta visita puntual
+
+  @@index([userId, expiresAt])
+  @@index([storeId])
+}
+
+model Review {
+  id        String @id @default(cuid())
+  userId    String
+  storeId   String
+  checkinId String @unique // cada review queda ligada a la visita (check-in) que la habilita
+
+  // Factores puntuables, todos en la misma dirección: 1 = peor, 5 = mejor
+  comodidad    Int
+  silencio     Int // "Silencio y concentración": 1 = ruidoso/interrupciones, 5 = ideal para concentrarse
+  enchufes     Int
+  conectividad Int
+  servicio     Int
+  comida       Int
+
+  // Preguntas sí/no observadas en la visita, con detalle opcional
+  tiempoMaximo     Boolean
+  tiempoMaximoTxt  String?
+  consumoMinimo    Boolean
+  consumoMinimoTxt String?
+
+  ratingAvg  Float // promedio de los 6 factores numéricos de esta review
+  comentario String?
+  photoUrl   String?
+  createdAt  DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store   Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  checkin Checkin @relation(fields: [checkinId], references: [id])
+
+  @@index([storeId])
+}
+
+// Historial de puntos otorgados (por check-in o por review), pensado para
+// habilitar canjes más adelante sin tener que migrar datos.
+model PointsTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  storeId   String
+  source    String   // "checkin" | "review"
+  amount    Int      // en centésimas de punto (25 = 0.25, 100 = 1.00)
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([userId, storeId, source])
+  @@index([userId, createdAt])
+}

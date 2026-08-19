@@ -1,0 +1,50 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #111827;
+  --muted: #6B7280;
+  --line: #EAE8E3;
+  --field: #F7F6F3;
+  --accent: #0F9D6E;
+  --accent-l: #E6F6EF;
+  --accent-d: #0B7C58;
+  --star: #F0A93E;
+  --mono: 'JetBrains Mono', monospace;
+
+  /* legacy aliases kept so any leftover references keep working */
+  --bg: var(--field);
+  --surface: #FFFFFF;
+  --dark: var(--ink);
+  --mid: var(--muted);
+  --light: #9CA3AF;
+  --border: var(--line);
+  --acc: var(--accent);
+  --acc-l: var(--accent-l);
+  --amb: var(--star);
+  --amb-l: #FCF3E2;
+  --cor: #C0574F;
+  --cor-l: #FAECE7;
+  --blu: #3B82F6;
+  --blu-l: #E8F4FD;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: #fff;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+input, textarea { font-family: inherit; }
+a { text-decoration: none; color: inherit; }
+svg { display: block; }
+
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
