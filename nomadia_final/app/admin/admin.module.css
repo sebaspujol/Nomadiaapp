@@ -1,0 +1,200 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px 28px 80px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  color: var(--ink);
+}
+
+.centerMsg {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.headRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.headRow h1 {
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.backLink {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-d);
+}
+
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.statCard {
+  background: var(--field);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.statCardAccent {
+  background: var(--accent-l);
+}
+
+.statVal {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.statSub {
+  font-size: 11px;
+  color: var(--accent-d);
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.panel h2 {
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 110px;
+}
+
+.barCol {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bar {
+  width: 100%;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+  min-height: 2px;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.breakdownRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.breakdownLabel {
+  width: 160px;
+  flex-shrink: 0;
+  font-weight: 600;
+  color: #374151;
+}
+
+.breakdownBarTrack {
+  flex: 1;
+  height: 8px;
+  background: var(--field);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.breakdownBarFill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.breakdownCount {
+  width: 32px;
+  text-align: right;
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+
+.table th {
+  text-align: left;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.table td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mono {
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.empty {
+  color: var(--muted);
+  font-style: italic;
+  text-align: center;
+  padding: 16px;
+}
+
+@media (max-width: 900px) {
+  .cardsGrid { grid-template-columns: repeat(2, 1fr); }
+  .grid2 { grid-template-columns: 1fr; }
+}
