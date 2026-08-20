@@ -79,6 +79,11 @@ const STRINGS = {
     loginButton: 'Iniciar sesión',
     continueButton: 'Seguir explorando',
     close: 'Cerrar',
+
+    // Pedido de login (aparece al cerrar el popup de bienvenida, si no estás logueado)
+    loginPromptTitle: 'Sacale más jugo a nomadia',
+    loginPromptText: 'Creando una cuenta podés hacer check-in, dejar reviews y sumar puntos. Es opcional — podés seguir explorando sin ella.',
+    continueWithoutAccount: 'Seguir sin cuenta',
   },
   en: {
     searchPlaceholder: 'Search a city...',
@@ -142,6 +147,11 @@ const STRINGS = {
     loginButton: 'Log in',
     continueButton: 'Keep exploring',
     close: 'Close',
+
+    // Login prompt (shown after closing the welcome popup, if not logged in)
+    loginPromptTitle: 'Get more out of nomadia',
+    loginPromptText: 'Creating an account lets you check in, leave reviews and earn points. It\'s optional — you can keep exploring without one.',
+    continueWithoutAccount: 'Continue without an account',
   },
 }
 

@@ -1,15 +1,19 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
+import { useSession } from 'next-auth/react'
 import Map from '../src/components/Map'
 import Sidebar from '../src/components/Sidebar'
 import Header from '../src/components/Header'
 import Filters from '../src/components/Filters'
 import AddPlaceModal from '../src/components/AddPlaceModal'
 import WelcomeModal from '../src/components/WelcomeModal'
+import SuggestionModal from '../src/components/SuggestionModal'
+import LoginPromptModal from '../src/components/LoginPromptModal'
 import { WELCOME_VERSION } from '../src/lib/i18n'
 import styles from './page.module.css'
 
 export default function Home() {
+  const { status } = useSession()
   const [places, setPlaces] = useState([])
   const [filtered, setFiltered] = useState([])
   const [selected, setSelected] = useState(null)
@@ -20,6 +24,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [showAddPlace, setShowAddPlace] = useState(false)
   const [showWelcome, setShowWelcome] = useState(false)
+  const [showSuggestion, setShowSuggestion] = useState(false)
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false)
   const [filters, setFilters] = useState({
     tipo: 'all',
     maxPrice: 30,
@@ -66,11 +72,17 @@ export default function Home() {
     }
   }, [])
 
+  // Al cerrar el popup de bienvenida, si la persona no está logueada le
+  // mostramos una invitación a crear cuenta — se puede cerrar y seguir
+  // navegando sin ella. Como se dispara siempre que se cierra el popup de
+  // bienvenida (que ya de por sí aparece una sola vez por navegador, salvo
+  // que subamos WELCOME_VERSION), no necesita su propio control de frecuencia.
   const dismissWelcome = () => {
     setShowWelcome(false)
     try {
       window.localStorage.setItem('nomadia_welcome_version', WELCOME_VERSION)
     } catch {}
+    if (status !== 'authenticated') setShowLoginPrompt(true)
   }
 
   const fetchPlaces = async (location) => {
@@ -145,7 +157,11 @@ export default function Home() {
 
   return (
     <div className={styles.app}>
-      <Header onSearchCity={handleSearchCity} onAddPlace={() => setShowAddPlace(true)} />
+      <Header
+        onSearchCity={handleSearchCity}
+        onAddPlace={() => setShowAddPlace(true)}
+        onSuggest={() => setShowSuggestion(true)}
+      />
       <Filters filters={filters} setFilters={setFilters} />
       {showAddPlace && (
         <AddPlaceModal
@@ -153,7 +169,9 @@ export default function Home() {
           onCreated={() => fetchPlaces(userLocation)}
         />
       )}
+      {showSuggestion && <SuggestionModal onClose={() => setShowSuggestion(false)} />}
       {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
+      {showLoginPrompt && <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />}
       <div className={styles.main}>
         <Sidebar
           places={filtered}
