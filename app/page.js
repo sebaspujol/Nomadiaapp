@@ -26,6 +26,9 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
+  // Solo tiene efecto en mobile (ver page.module.css) — en desktop la lista
+  // y el mapa siempre se ven lado a lado, así que este estado no cambia nada.
+  const [mobileView, setMobileView] = useState('list')
   const [filters, setFilters] = useState({
     tipo: 'all',
     maxPrice: 30,
@@ -104,6 +107,7 @@ export default function Home() {
   const handleSearchCity = useCallback(({ lat, lng }) => {
     setSelected(null)
     setUserLocation({ lat, lng })
+    setMobileView('map') // en mobile, buscar una ciudad muestra el mapa ahí (en desktop no afecta nada)
   }, [])
 
   // Botón "ubicarme" del mapa: vuelve a pedirle al navegador la posición
@@ -173,29 +177,44 @@ export default function Home() {
       {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
       {showLoginPrompt && <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />}
       <div className={styles.main}>
-        <Sidebar
-          places={filtered}
-          selected={selected}
-          onSelect={setSelected}
-          loading={loading}
-          onPlaceUpdated={(updated) => {
-            setPlaces((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
-            setSelected((prev) => (prev && prev.id === updated.id ? { ...prev, ...updated } : prev))
-          }}
-        />
-        <Map
-          places={filtered}
-          selected={selected}
-          onSelect={setSelected}
-          userLocation={userLocation}
-          accuracy={accuracy}
-          loading={loading}
-          onLocateMe={handleLocateMe}
-          locating={locating}
-        />
-        {locateError && (
-          <div className={styles.locateError} role="alert">{locateError}</div>
-        )}
+        <div className={`${styles.paneList} ${mobileView === 'map' ? styles.hiddenMobile : ''}`}>
+          <Sidebar
+            places={filtered}
+            selected={selected}
+            onSelect={setSelected}
+            loading={loading}
+            onPlaceUpdated={(updated) => {
+              setPlaces((prev) => prev.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)))
+              setSelected((prev) => (prev && prev.id === updated.id ? { ...prev, ...updated } : prev))
+            }}
+          />
+        </div>
+        <div className={`${styles.paneMap} ${mobileView === 'list' ? styles.hiddenMobile : ''}`}>
+          <Map
+            places={filtered}
+            selected={selected}
+            onSelect={(place) => {
+              setSelected(place)
+              // En mobile, tocar un pin en el mapa te lleva al detalle en la
+              // lista — en desktop este estado no tiene ningún efecto visual.
+              if (place) setMobileView('list')
+            }}
+            userLocation={userLocation}
+            accuracy={accuracy}
+            loading={loading}
+            onLocateMe={handleLocateMe}
+            locating={locating}
+          />
+          {locateError && (
+            <div className={styles.locateError} role="alert">{locateError}</div>
+          )}
+        </div>
+        <button
+          className={styles.mobileToggle}
+          onClick={() => setMobileView((v) => (v === 'list' ? 'map' : 'list'))}
+        >
+          {mobileView === 'list' ? '🗺️ Ver mapa' : '📋 Ver lista'}
+        </button>
       </div>
     </div>
   )

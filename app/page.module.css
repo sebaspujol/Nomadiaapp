@@ -10,6 +10,20 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
+}
+
+/* Envoltorios de la lista y el mapa. En desktop "display: contents" hace que
+   no afecten el layout — la lista y el mapa quedan como items directos del
+   flex .main, igual que antes de este cambio. En mobile los transformamos en
+   bloques normales y usamos .hiddenMobile para mostrar solo uno a la vez
+   (ver el botón .mobileToggle más abajo). */
+.paneList, .paneMap {
+  display: contents;
+}
+
+.mobileToggle {
+  display: none;
 }
 
 .locateError {
@@ -26,4 +40,38 @@
   z-index: 2500;
   max-width: 90vw;
   text-align: center;
+}
+
+/* --- Mobile: en vez de lista + mapa lado a lado (que no entra en una
+   pantalla de celular), se muestra uno u otro a pantalla completa, con un
+   botón flotante para alternar — el patrón típico de apps como Airbnb. */
+@media (max-width: 860px) {
+  .paneList, .paneMap {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+  .paneList.hiddenMobile, .paneMap.hiddenMobile {
+    display: none;
+  }
+
+  .mobileToggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: absolute;
+    bottom: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111827;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 20px;
+    border-radius: 999px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    z-index: 2200;
+    white-space: nowrap;
+  }
 }

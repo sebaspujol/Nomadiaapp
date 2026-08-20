@@ -1,0 +1,14 @@
+{
+  "name": "nomadia — encontrá tu lugar para trabajar",
+  "short_name": "nomadia",
+  "description": "Cafés, coworks y bibliotecas con buen lugar para trabajar cerca de ti.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111827",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

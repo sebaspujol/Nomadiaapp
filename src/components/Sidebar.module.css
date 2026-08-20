@@ -7,6 +7,27 @@
   flex-shrink: 0;
 }
 
+/* En mobile la lista ocupa toda la pantalla (ver page.module.css: en ese
+   ancho mostramos lista o mapa a pantalla completa, nunca lado a lado). */
+@media (max-width: 860px) {
+  .leftPane {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    border-right: none;
+    flex: 1;
+  }
+
+  .cardGrid { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .leftPad { padding: 16px 16px 90px; }
+  .detailScroll { padding: 0 16px 90px; }
+  .backRow { padding: 14px 16px; }
+}
+
+@media (max-width: 420px) {
+  .cardGrid { grid-template-columns: 1fr; }
+}
+
 .leftPad { padding: 22px 28px 60px; }
 
 .resultsHead { margin-bottom: 18px; }

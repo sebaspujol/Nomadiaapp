@@ -76,3 +76,9 @@
   white-space: nowrap;
 }
 .toggle input { accent-color: var(--accent); }
+
+@media (max-width: 860px) {
+  .row { padding: 12px 14px; }
+  .priceRow { padding: 0 14px 12px; flex-wrap: wrap; }
+  .range { max-width: 120px; }
+}

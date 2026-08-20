@@ -118,3 +118,7 @@
   opacity: 0.6;
   cursor: default;
 }
+
+@media (max-width: 480px) {
+  .row { grid-template-columns: 1fr; gap: 10px; }
+}
