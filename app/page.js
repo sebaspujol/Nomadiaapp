@@ -26,9 +26,10 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false)
   const [showSuggestion, setShowSuggestion] = useState(false)
   const [showLoginPrompt, setShowLoginPrompt] = useState(false)
-  // Solo tiene efecto en mobile (ver page.module.css) — en desktop la lista
-  // y el mapa siempre se ven lado a lado, así que este estado no cambia nada.
-  const [mobileView, setMobileView] = useState('list')
+  // Vista principal: por defecto solo se ve el mapa (celu y PC por igual).
+  // La lista de resultados es opcional — se muestra con el botón flotante
+  // "Ver lista" — y tocar un lugar en el mapa abre su detalle directamente.
+  const [view, setView] = useState('map')
   const [filters, setFilters] = useState({
     tipo: 'all',
     maxPrice: 30,
@@ -107,7 +108,7 @@ export default function Home() {
   const handleSearchCity = useCallback(({ lat, lng }) => {
     setSelected(null)
     setUserLocation({ lat, lng })
-    setMobileView('map') // en mobile, buscar una ciudad muestra el mapa ahí (en desktop no afecta nada)
+    setView('map') // buscar una ciudad te lleva al mapa para que la veas ahí
   }, [])
 
   // Botón "ubicarme" del mapa: vuelve a pedirle al navegador la posición
@@ -177,7 +178,7 @@ export default function Home() {
       {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
       {showLoginPrompt && <LoginPromptModal onClose={() => setShowLoginPrompt(false)} />}
       <div className={styles.main}>
-        <div className={`${styles.paneList} ${mobileView === 'map' ? styles.hiddenMobile : ''}`}>
+        <div className={`${styles.paneList} ${view === 'map' ? styles.hiddenPane : ''}`}>
           <Sidebar
             places={filtered}
             selected={selected}
@@ -189,15 +190,14 @@ export default function Home() {
             }}
           />
         </div>
-        <div className={`${styles.paneMap} ${mobileView === 'list' ? styles.hiddenMobile : ''}`}>
+        <div className={`${styles.paneMap} ${view === 'list' ? styles.hiddenPane : ''}`}>
           <Map
             places={filtered}
             selected={selected}
             onSelect={(place) => {
               setSelected(place)
-              // En mobile, tocar un pin en el mapa te lleva al detalle en la
-              // lista — en desktop este estado no tiene ningún efecto visual.
-              if (place) setMobileView('list')
+              // Tocar un lugar en el mapa abre directamente su detalle.
+              if (place) setView('list')
             }}
             userLocation={userLocation}
             accuracy={accuracy}
@@ -210,10 +210,10 @@ export default function Home() {
           )}
         </div>
         <button
-          className={styles.mobileToggle}
-          onClick={() => setMobileView((v) => (v === 'list' ? 'map' : 'list'))}
+          className={styles.viewToggle}
+          onClick={() => setView((v) => (v === 'list' ? 'map' : 'list'))}
         >
-          {mobileView === 'list' ? '🗺️ Ver mapa' : '📋 Ver lista'}
+          {view === 'list' ? '🗺️ Ver mapa' : '📋 Ver lista'}
         </button>
       </div>
     </div>

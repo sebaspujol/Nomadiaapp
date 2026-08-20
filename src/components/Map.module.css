@@ -55,8 +55,11 @@
 .pin.unverified .bubble { background: #fff; color: var(--muted); border: 1.5px solid var(--line); }
 .pin.unverified .bubble::after { border: 1.5px solid var(--line); border-top: none; border-left: none; }
 
+/* left/right/bottom levantados de su posición "natural" (18/26px) porque
+   ahora siempre hay un botón flotante "Ver lista" pegado abajo al centro
+   (page.module.css) — sin este margen, quedaban tapados por él. */
 .legend {
-  position: absolute; left: 18px; bottom: 26px; background: #fff; border-radius: 12px;
+  position: absolute; left: 18px; bottom: 84px; background: #fff; border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,.12); padding: 10px 14px; font-size: 11.5px; font-weight: 600;
   color: #374151; display: flex; flex-direction: column; gap: 6px; z-index: 4;
 }
@@ -64,14 +67,14 @@
 .legend .catDot { width: 8px; height: 8px; }
 
 .zoomCtl {
-  position: absolute; right: 18px; bottom: 26px; background: #fff; border-radius: 12px;
+  position: absolute; right: 18px; bottom: 84px; background: #fff; border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0,0,0,.12); overflow: hidden; z-index: 4;
 }
 .zoomCtl button { display: block; width: 38px; height: 38px; font-size: 16px; border-bottom: 1px solid var(--line); color: #374151; }
 .zoomCtl button:last-child { border-bottom: none; }
 
 .locateCtl {
-  position: absolute; right: 18px; bottom: 82px; width: 38px; height: 38px;
+  position: absolute; right: 18px; bottom: 140px; width: 38px; height: 38px;
   background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.12);
   display: flex; align-items: center; justify-content: center; z-index: 4; color: #374151;
 }
@@ -93,16 +96,13 @@
   border-radius: 6px 0 0 0;
 }
 .map :global(.leaflet-control-zoom) { display: none; }
-.map :global(.leaflet-bottom.leaflet-right) { margin-right: 74px; }
+.map :global(.leaflet-bottom.leaflet-right) { margin-right: 74px; margin-bottom: 60px; }
 
-/* En mobile hay un botón flotante ("Ver lista") pegado abajo al centro
-   (page.module.css) — subimos la leyenda, los controles de zoom y el botón
-   de ubicación para que no queden tapados por él. */
 @media (max-width: 860px) {
-  .legend { bottom: 84px; left: 12px; }
-  .zoomCtl { right: 12px; bottom: 84px; }
-  .locateCtl { right: 12px; bottom: 140px; }
-  .map :global(.leaflet-bottom.leaflet-right) { margin-right: 66px; margin-bottom: 60px; }
+  .legend { left: 12px; }
+  .zoomCtl { right: 12px; }
+  .locateCtl { right: 12px; }
+  .map :global(.leaflet-bottom.leaflet-right) { margin-right: 66px; }
 }
 
 .loading {
