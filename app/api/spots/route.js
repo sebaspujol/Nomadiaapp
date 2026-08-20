@@ -8,12 +8,11 @@ import { NextResponse } from 'next/server'
 import prisma from '../../../lib/prisma'
 import { ensureAreaImported } from '../../../lib/placesImport'
 
-const EMOJI = { cafe: '☕', cowork: '🏢', biblioteca: '📚', hotel: '🏨' }
+const EMOJI = { cafe: '☕', cowork: '🏢', biblioteca: '📚' }
 
 const PRECIO_DEFAULT = {
   cafe: { precio: '€3–6', precioNum: 4 },
   cowork: { precio: '€15/día', precioNum: 15 },
-  hotel: { precio: '€8', precioNum: 8 },
   biblioteca: { precio: 'Gratis', precioNum: 0 },
 }
 
@@ -92,6 +91,10 @@ export async function GET(request) {
   const stores = await prisma.store.findMany({
     where: {
       active: true,
+      // Sacamos "hotel" de la experiencia: casi nunca tienen un lobby pensado
+      // para trabajar, así que ensuciaban más de lo que ayudaban. Quedan sin
+      // borrar en la base por si algún día se reincorporan.
+      tipo: { not: 'hotel' },
       lat: { gte: lat - latDelta, lte: lat + latDelta },
       lng: { gte: lng - lngDelta, lte: lng + lngDelta },
     },

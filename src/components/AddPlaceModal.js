@@ -14,7 +14,6 @@ export default function AddPlaceModal({ onClose, onCreated }) {
   const TIPOS = [
     { value: 'cafe', label: t('filterCafe') },
     { value: 'cowork', label: t('filterCowork') },
-    { value: 'hotel', label: t('filterHotel') },
     { value: 'biblioteca', label: t('filterBiblioteca') },
   ]
   const [form, setForm] = useState(initialForm)

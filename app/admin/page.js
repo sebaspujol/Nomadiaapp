@@ -8,7 +8,7 @@ import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import styles from './admin.module.css'
 
-const TIPO_COLORS = { cafe: '#F0A93E', cowork: '#0F9D6E', hotel: '#3B82F6', biblioteca: '#C0574F' }
+const TIPO_COLORS = { cafe: '#F0A93E', cowork: '#0F9D6E', biblioteca: '#C0574F' }
 
 export default function AdminPage() {
   const { status } = useSession()

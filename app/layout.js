@@ -6,7 +6,7 @@ import Providers from './Providers'
 
 export const metadata = {
   title: 'Nomadia — Encuentra tu espacio de trabajo en Madrid',
-  description: 'Cafés, coworks, hoteles y bibliotecas para trabajar en Madrid. Filtros por enchufes, wifi, precio, afluencia y más.',
+  description: 'Cafés, coworks y bibliotecas para trabajar en Madrid. Filtros por enchufes, wifi, precio, afluencia y más.',
 }
 
 export default function RootLayout({ children }) {

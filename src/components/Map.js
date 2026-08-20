@@ -16,24 +16,24 @@ import { useEffect, useRef, useState } from 'react'
 import { useLang } from '../lib/i18n'
 import styles from './Map.module.css'
 
+// Sacamos "hotel" de las categorías: casi nunca tienen un lobby pensado para
+// trabajar, así que ensuciaban más de lo que ayudaban. Quedan Cafés, Coworks
+// y Bibliotecas por ahora.
 const TYPE_COLORS = {
   cafe: '#F0A93E',
   cowork: '#0F9D6E',
-  hotel: '#3B82F6',
   biblioteca: '#C0574F',
 }
 
 const TYPE_EMOJI = {
   cafe: '☕',
   cowork: '🧑‍💻',
-  hotel: '🏨',
   biblioteca: '📚',
 }
 
 const LEGEND_KEYS = [
   { tipo: 'cafe', key: 'cafes' },
   { tipo: 'cowork', key: 'coworks' },
-  { tipo: 'hotel', key: 'hoteles' },
   { tipo: 'biblioteca', key: 'bibliotecas' },
 ]
 

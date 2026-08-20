@@ -11,7 +11,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 // aparecer una vez más para quienes ya lo habían cerrado — así se enteran de
 // lo nuevo sin que les moleste cada visita. Si no lo tocás, cada persona lo
 // ve una sola vez por navegador.
-export const WELCOME_VERSION = 'v1'
+export const WELCOME_VERSION = 'v2'
 
 const STRINGS = {
   es: {
@@ -19,7 +19,7 @@ const STRINGS = {
     searching: 'Buscando...',
     anyZone: 'Cualquier zona',
     allTypes: 'Todos',
-    typeSub: 'Café, cowork, hotel...',
+    typeSub: 'Café, cowork, biblioteca...',
     filtersWord: 'Filtros',
     filtersSub: 'Enchufes, wifi, silencio...',
     addPlace: '+ Añadir lugar',
@@ -27,11 +27,9 @@ const STRINGS = {
     locateMe: 'Usar mi ubicación actual',
     cafes: 'Cafés',
     coworks: 'Coworks',
-    hoteles: 'Hoteles',
     bibliotecas: 'Bibliotecas',
     filterCafe: 'Café',
     filterCowork: 'Cowork',
-    filterHotel: 'Hotel',
     filterBiblioteca: 'Biblioteca',
     filterEnchufes: 'Enchufes',
     filterWifi: 'Wifi rápido',
@@ -43,7 +41,7 @@ const STRINGS = {
     priceUpTo: (n) => `hasta €${n}`,
     onlyOpenNow: 'Solo abiertos ahora',
     addPlaceTitle: 'Sumar un lugar',
-    addPlaceHint: '¿Falta un café, cowork, biblioteca u hotel con buen lugar para trabajar? Cargalo y quedará visible para toda la comunidad. Vas a poder dejar la primera review en cuanto hagas check-in ahí.',
+    addPlaceHint: '¿Falta un café, cowork o biblioteca con buen lugar para trabajar? Cargalo y quedará visible para toda la comunidad. Vas a poder dejar la primera review en cuanto hagas check-in ahí.',
     nameLabel: 'Nombre del lugar',
     namePlaceholder: 'Ej: Federal Café',
     typeLabel: 'Tipo',
@@ -58,7 +56,7 @@ const STRINGS = {
 
     // Popup de bienvenida
     welcomeTitle: 'Bienvenido a nomadia 👋',
-    welcomeIntro: 'Encontrá cafés, coworks, bibliotecas y hoteles con buen lugar para trabajar cerca de donde estés, o en cualquier ciudad que busques.',
+    welcomeIntro: 'Encontrá cafés, coworks y bibliotecas con buen lugar para trabajar cerca de donde estés, o en cualquier ciudad que busques.',
     welcomeHowTitle: '¿Cómo funciona?',
     welcomeHowText: 'Movete por el mapa o buscá una ciudad arriba. Filtrá por tipo de lugar, wifi, enchufes o silencio. Hacé click en un pin para ver el detalle, y si vas, dejá tu review para sumar puntos.',
     changelogTitle: 'Novedades',
@@ -66,6 +64,7 @@ const STRINGS = {
     // nueva, sumá un string acá (y su traducción abajo en "en") y subí
     // WELCOME_VERSION arriba de este archivo.
     changelogItems: [
+      'Sacamos los hoteles de la lista: casi nunca tienen un buen lugar para trabajar. Quedan Cafés, Coworks y Bibliotecas',
       'Mapa más claro: los lugares se agrupan en burbujas con número, y cada pin muestra un emoji según el tipo de lugar',
       'Nuevo botón para ubicarte con precisión en el mapa (abajo a la derecha)',
       'Podés cambiar el idioma del sitio a inglés desde el botón ES/EN, arriba a la derecha',
@@ -86,7 +85,7 @@ const STRINGS = {
     searching: 'Searching...',
     anyZone: 'Any area',
     allTypes: 'All',
-    typeSub: 'Cafe, cowork, hotel...',
+    typeSub: 'Cafe, cowork, library...',
     filtersWord: 'Filters',
     filtersSub: 'Outlets, wifi, quiet...',
     addPlace: '+ Add place',
@@ -94,11 +93,9 @@ const STRINGS = {
     locateMe: 'Use my current location',
     cafes: 'Cafes',
     coworks: 'Coworks',
-    hoteles: 'Hotels',
     bibliotecas: 'Libraries',
     filterCafe: 'Cafe',
     filterCowork: 'Cowork',
-    filterHotel: 'Hotel',
     filterBiblioteca: 'Library',
     filterEnchufes: 'Outlets',
     filterWifi: 'Fast wifi',
@@ -110,7 +107,7 @@ const STRINGS = {
     priceUpTo: (n) => `up to €${n}`,
     onlyOpenNow: 'Open now only',
     addPlaceTitle: 'Add a place',
-    addPlaceHint: "Missing a cafe, cowork, library or hotel with a good spot to work? Add it and it'll be visible to the whole community. You'll be able to leave the first review once you check in there.",
+    addPlaceHint: "Missing a cafe, cowork or library with a good spot to work? Add it and it'll be visible to the whole community. You'll be able to leave the first review once you check in there.",
     nameLabel: 'Place name',
     namePlaceholder: 'E.g: Federal Cafe',
     typeLabel: 'Type',
@@ -125,11 +122,12 @@ const STRINGS = {
 
     // Welcome popup
     welcomeTitle: 'Welcome to nomadia 👋',
-    welcomeIntro: 'Find cafes, coworks, libraries and hotels with a good spot to work near you, or in any city you search for.',
+    welcomeIntro: 'Find cafes, coworks and libraries with a good spot to work near you, or in any city you search for.',
     welcomeHowTitle: 'How does it work?',
     welcomeHowText: 'Move around the map or search a city above. Filter by place type, wifi, outlets or quiet. Click a pin to see the details, and if you go, leave a review to earn points.',
     changelogTitle: "What's new",
     changelogItems: [
+      "Removed hotels from the list: they almost never have a good spot to work. Cafes, Coworks and Libraries only for now",
       'Clearer map: places now group into numbered bubbles, and each pin shows an emoji for its category',
       'New button to precisely locate yourself on the map (bottom right)',
       'You can switch the site to English from the ES/EN button, top right',

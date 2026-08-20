@@ -12,9 +12,6 @@ const ICONS = {
   cowork: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="4" width="14" height="17" rx="1.5" /><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1" /></svg>
   ),
-  hotel: (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7" /><path d="M3 18h18M5 11V7a2 2 0 0 1 2-2h3v6" /></svg>
-  ),
   biblioteca: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 5v14M4 5c2 0 5-1 7 0v14c-2-1-5 0-7 0Z" /><path d="M18 5v14M18 5c-2 0-5-1-7 0v14c2-1 5 0 7 0Z" /></svg>
   ),
@@ -36,7 +33,6 @@ export default function Filters({ filters, setFilters }) {
     { key: 'all', label: t('allTypes') },
     { key: 'cafe', label: t('cafes') },
     { key: 'cowork', label: t('coworks') },
-    { key: 'hotel', label: t('hoteles') },
     { key: 'biblioteca', label: t('bibliotecas') },
   ]
 
