@@ -37,6 +37,12 @@ const LEGEND_KEYS = [
   { tipo: 'biblioteca', key: 'bibliotecas' },
 ]
 
+// A partir de qué nivel de zoom de Leaflet mostramos el puntaje encima de
+// los pines. Con menos zoom los pines quedan muy juntos y el numerito se
+// superpone con el de al lado — a partir de este nivel (más o menos calle/
+// cuadra) ya hay lugar de sobra para que se lea bien.
+const RATING_ZOOM_THRESHOLD = 16
+
 function pinEmoji(place) {
   return place.emoji || TYPE_EMOJI[place.tipo] || '📍'
 }
@@ -44,13 +50,21 @@ function pinEmoji(place) {
 // Pin individual: círculo chico con el emoji de la categoría. Los verificados
 // (con reviews reales de la comunidad) llevan el borde del color de su
 // categoría; los importados de OpenStreetMap sin verificar todavía, un
-// borde gris neutro.
+// borde gris neutro. Si el lugar ya tiene reviews propias de la app, se le
+// suma una etiqueta con el puntaje arriba del pin — pero queda oculta por
+// CSS (".ratingPinBadge") hasta que el mapa está suficientemente zoomeado
+// (ver RATING_ZOOM_THRESHOLD y la clase "ratings-visible" en el mapa).
 function pinHtml(place) {
   const bg = place.verified === false ? '#fff' : '#111827'
   const border = place.verified === false ? '2px solid #D8D5CC' : `2px solid ${TYPE_COLORS[place.tipo] || '#888'}`
+  const hasRating = place.verified !== false && place.reviews > 0
+  const badge = hasRating
+    ? `<div class="ratingPinBadge" style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:#fff;color:#111827;border-radius:999px;padding:1px 6px;font-size:10.5px;font-weight:700;font-family:'JetBrains Mono',monospace;box-shadow:0 2px 6px rgba(0,0,0,.28);white-space:nowrap;align-items:center;gap:2px;">★${place.rating}</div>`
+    : ''
   return `
-    <div style="width:32px;height:32px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 10px rgba(0,0,0,.22);">
+    <div style="position:relative;width:32px;height:32px;border-radius:50%;background:${bg};border:${border};display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 10px rgba(0,0,0,.22);">
       ${pinEmoji(place)}
+      ${badge}
     </div>
   `
 }
@@ -77,6 +91,10 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
   const userAccuracyCircle = useRef(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
+  // Controla si se muestra el puntaje encima de los pines — solo con zoom
+  // suficiente (ver RATING_ZOOM_THRESHOLD). Arranca en false porque el mapa
+  // abre con zoom 14, por debajo del umbral.
+  const [ratingsVisible, setRatingsVisible] = useState(false)
 
   // Cargar Leaflet + el plugin de clustering dinámicamente (no funcionan en
   // SSR, necesitan `window`). El plugin se engancha al mismo objeto L de
@@ -124,6 +142,14 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
     }).addTo(map)
 
     mapInstance.current = map
+
+    // El puntaje sobre los pines aparece/desaparece según el zoom actual —
+    // "zoomend" dispara tanto con el gesto de pellizco/scroll como con los
+    // botones +/- (zoomBy usa setZoom, que también emite este evento).
+    const updateRatingsVisible = () => setRatingsVisible(map.getZoom() >= RATING_ZOOM_THRESHOLD)
+    updateRatingsVisible()
+    map.on('zoomend', updateRatingsVisible)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready])
 
@@ -215,7 +241,7 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
   return (
     <div className={styles.mapPane}>
       {loading && <div className={styles.loading}>Cargando lugares...</div>}
-      <div ref={mapRef} className={styles.map} />
+      <div ref={mapRef} className={`${styles.map} ${ratingsVisible ? 'ratings-visible' : ''}`} />
       <div className={styles.legend}>
         {LEGEND.map((l) => (
           <div key={l.tipo}><span className={styles.catDot} style={{ background: TYPE_COLORS[l.tipo] }} />{l.label}</div>

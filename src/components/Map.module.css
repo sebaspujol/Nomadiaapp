@@ -51,6 +51,13 @@
 
 .catDot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
+/* Puntaje sobre los pines: oculto por defecto, visible solo cuando el mapa
+   tiene la clase "ratings-visible" (Map.js la agrega/quita según el zoom
+   actual — ver RATING_ZOOM_THRESHOLD). El pin en sí se genera como HTML
+   crudo para Leaflet (no pasa por React), por eso son selectores :global. */
+:global(.ratingPinBadge) { display: none; }
+:global(.ratings-visible) :global(.ratingPinBadge) { display: flex; }
+
 .pin.active .bubble, .pin:hover .bubble { background: var(--accent-d); }
 .pin.unverified .bubble { background: #fff; color: var(--muted); border: 1.5px solid var(--line); }
 .pin.unverified .bubble::after { border: 1.5px solid var(--line); border-top: none; border-left: none; }
