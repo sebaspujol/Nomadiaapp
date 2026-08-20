@@ -25,10 +25,11 @@ model User {
   // el saldo y el historial se guardan desde el día uno.
   pointsBalance Int @default(0)
 
-  checkins  Checkin[]
-  reviews   Review[]
-  stores    Store[]  // tiendas que gestiona
-  pointsTx  PointsTransaction[]
+  checkins    Checkin[]
+  reviews     Review[]
+  stores      Store[]  // tiendas que gestiona
+  pointsTx    PointsTransaction[]
+  suggestions Suggestion[]
 
   accounts  Account[] // OAuth accounts (NextAuth)
   sessions  Session[]
@@ -188,4 +189,20 @@ model PointsTransaction {
 
   @@index([userId, storeId, source])
   @@index([userId, createdAt])
+}
+
+// Sugerencias dejadas desde el popup de bienvenida — cualquiera puede mandar
+// una (con o sin cuenta), y quedan visibles para resolver en /admin.
+model Suggestion {
+  id        String   @id @default(cuid())
+  userId    String?
+  nombre    String?
+  email     String?
+  texto     String
+  resuelto  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([resuelto, createdAt])
 }

@@ -15,6 +15,8 @@ export default function AdminPage() {
   const [stats, setStats] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [suggestions, setSuggestions] = useState([])
+  const [suggestionsError, setSuggestionsError] = useState('')
 
   useEffect(() => {
     if (status === 'loading') return
@@ -34,7 +36,33 @@ export default function AdminPage() {
       })
       .catch(() => setError('Error cargando métricas'))
       .finally(() => setLoading(false))
+
+    fetch('/api/suggestions')
+      .then(async (res) => {
+        const data = await res.json()
+        if (!res.ok) {
+          setSuggestionsError(data.error || 'No autorizado')
+          return
+        }
+        setSuggestions(data.suggestions || [])
+      })
+      .catch(() => setSuggestionsError('Error cargando sugerencias'))
   }, [status])
+
+  const toggleResuelto = async (s) => {
+    setSuggestions((prev) => prev.map((x) => (x.id === s.id ? { ...x, resuelto: !x.resuelto } : x)))
+    try {
+      const res = await fetch('/api/suggestions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: s.id, resuelto: !s.resuelto }),
+      })
+      if (!res.ok) throw new Error()
+    } catch {
+      // Si falla, revertimos el cambio visual.
+      setSuggestions((prev) => prev.map((x) => (x.id === s.id ? { ...x, resuelto: s.resuelto } : x)))
+    }
+  }
 
   if (loading) {
     return <div className={styles.centerMsg}>Cargando métricas...</div>
@@ -153,6 +181,36 @@ export default function AdminPage() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      <div className={styles.panel}>
+        <h2>Sugerencias de la comunidad {suggestions.length > 0 && `(${suggestions.filter((s) => !s.resuelto).length} pendientes)`}</h2>
+        {suggestionsError && <p className={styles.empty}>{suggestionsError}</p>}
+        {!suggestionsError && suggestions.length === 0 && (
+          <p className={styles.empty}>Todavía no llegó ninguna sugerencia.</p>
+        )}
+        {!suggestionsError && suggestions.length > 0 && (
+          <div className={styles.suggestionList}>
+            {suggestions.map((s) => (
+              <div key={s.id} className={styles.suggestionRow}>
+                <div className={styles.suggestionMain}>
+                  <p className={styles.suggestionText}>{s.texto}</p>
+                  <p className={styles.suggestionMeta}>
+                    {(s.nombre || s.email) ? (s.nombre || s.email) : 'Anónimo'}
+                    {' · '}
+                    {new Date(s.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  </p>
+                </div>
+                <button
+                  className={s.resuelto ? styles.badgeResolved : styles.badgePending}
+                  onClick={() => toggleResuelto(s)}
+                >
+                  {s.resuelto ? 'Resuelta ✓' : 'Pendiente'}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

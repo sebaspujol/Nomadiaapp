@@ -6,6 +6,13 @@
 // "chrome" principal: header, filtros, mapa, y el modal de sumar lugar.
 import { createContext, useContext, useEffect, useState } from 'react'
 
+// Versión del popup de bienvenida. Subí este número (v2, v3...) cada vez que
+// agregues algo a `changelogItems` más abajo y quieras que el popup vuelva a
+// aparecer una vez más para quienes ya lo habían cerrado — así se enteran de
+// lo nuevo sin que les moleste cada visita. Si no lo tocás, cada persona lo
+// ve una sola vez por navegador.
+export const WELCOME_VERSION = 'v1'
+
 const STRINGS = {
   es: {
     searchPlaceholder: 'Buscá una ciudad...',
@@ -48,6 +55,31 @@ const STRINGS = {
     save: 'Sumar lugar',
     saving: 'Guardando...',
     requiredError: 'Nombre y dirección son obligatorios',
+
+    // Popup de bienvenida
+    welcomeTitle: 'Bienvenido a nomadia 👋',
+    welcomeIntro: 'Encontrá cafés, coworks, bibliotecas y hoteles con buen lugar para trabajar cerca de donde estés, o en cualquier ciudad que busques.',
+    welcomeHowTitle: '¿Cómo funciona?',
+    welcomeHowText: 'Movete por el mapa o buscá una ciudad arriba. Filtrá por tipo de lugar, wifi, enchufes o silencio. Hacé click en un pin para ver el detalle, y si vas, dejá tu review para sumar puntos.',
+    changelogTitle: 'Novedades',
+    // Cada elemento es una línea del changelog. Para agregar una novedad
+    // nueva, sumá un string acá (y su traducción abajo en "en") y subí
+    // WELCOME_VERSION arriba de este archivo.
+    changelogItems: [
+      'Mapa más claro: los lugares se agrupan en burbujas con número, y cada pin muestra un emoji según el tipo de lugar',
+      'Nuevo botón para ubicarte con precisión en el mapa (abajo a la derecha)',
+      'Podés cambiar el idioma del sitio a inglés desde el botón ES/EN, arriba a la derecha',
+    ],
+    suggestionsTitle: '¿Se te ocurre algo para mejorar?',
+    suggestionsPlaceholder: 'Contanos qué agregarías o qué no te cerró...',
+    suggestionsSubmit: 'Enviar sugerencia',
+    sending: 'Enviando...',
+    suggestionsSuccess: '¡Gracias! La recibimos.',
+    suggestionError: 'No pudimos guardar tu sugerencia, probá de nuevo',
+    loginPrompt: '¿Ya tenés cuenta?',
+    loginButton: 'Iniciar sesión',
+    continueButton: 'Seguir explorando',
+    close: 'Cerrar',
   },
   en: {
     searchPlaceholder: 'Search a city...',
@@ -90,6 +122,28 @@ const STRINGS = {
     save: 'Add place',
     saving: 'Saving...',
     requiredError: 'Name and address are required',
+
+    // Welcome popup
+    welcomeTitle: 'Welcome to nomadia 👋',
+    welcomeIntro: 'Find cafes, coworks, libraries and hotels with a good spot to work near you, or in any city you search for.',
+    welcomeHowTitle: 'How does it work?',
+    welcomeHowText: 'Move around the map or search a city above. Filter by place type, wifi, outlets or quiet. Click a pin to see the details, and if you go, leave a review to earn points.',
+    changelogTitle: "What's new",
+    changelogItems: [
+      'Clearer map: places now group into numbered bubbles, and each pin shows an emoji for its category',
+      'New button to precisely locate yourself on the map (bottom right)',
+      'You can switch the site to English from the ES/EN button, top right',
+    ],
+    suggestionsTitle: 'Got an idea to improve this?',
+    suggestionsPlaceholder: "Tell us what you'd add or what didn't work for you...",
+    suggestionsSubmit: 'Send suggestion',
+    sending: 'Sending...',
+    suggestionsSuccess: 'Thanks! We got it.',
+    suggestionError: "We couldn't save your suggestion, try again",
+    loginPrompt: 'Already have an account?',
+    loginButton: 'Log in',
+    continueButton: 'Keep exploring',
+    close: 'Close',
   },
 }
 

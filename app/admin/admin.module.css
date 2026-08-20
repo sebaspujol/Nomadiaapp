@@ -194,6 +194,59 @@
   padding: 16px;
 }
 
+.suggestionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.suggestionRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.suggestionMain {
+  min-width: 0;
+}
+
+.suggestionText {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+
+.suggestionMeta {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.badgePending,
+.badgeResolved {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badgePending {
+  background: #FCE9D8;
+  color: #B45309;
+}
+
+.badgeResolved {
+  background: var(--accent-l);
+  color: var(--accent-d);
+}
+
 @media (max-width: 900px) {
   .cardsGrid { grid-template-columns: repeat(2, 1fr); }
   .grid2 { grid-template-columns: 1fr; }

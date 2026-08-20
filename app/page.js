@@ -5,6 +5,8 @@ import Sidebar from '../src/components/Sidebar'
 import Header from '../src/components/Header'
 import Filters from '../src/components/Filters'
 import AddPlaceModal from '../src/components/AddPlaceModal'
+import WelcomeModal from '../src/components/WelcomeModal'
+import { WELCOME_VERSION } from '../src/lib/i18n'
 import styles from './page.module.css'
 
 export default function Home() {
@@ -17,6 +19,7 @@ export default function Home() {
   const [locateError, setLocateError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showAddPlace, setShowAddPlace] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(false)
   const [filters, setFilters] = useState({
     tipo: 'all',
     maxPrice: 30,
@@ -50,6 +53,25 @@ export default function Home() {
   useEffect(() => {
     fetchPlaces(userLocation)
   }, [userLocation])
+
+  // Popup de bienvenida: se muestra una vez por navegador. Si en el futuro
+  // subimos WELCOME_VERSION (lib/i18n.js) para avisar de novedades, vuelve
+  // a aparecer una vez más aunque ya lo hayan cerrado antes.
+  useEffect(() => {
+    try {
+      const seen = window.localStorage.getItem('nomadia_welcome_version')
+      if (seen !== WELCOME_VERSION) setShowWelcome(true)
+    } catch {
+      setShowWelcome(true)
+    }
+  }, [])
+
+  const dismissWelcome = () => {
+    setShowWelcome(false)
+    try {
+      window.localStorage.setItem('nomadia_welcome_version', WELCOME_VERSION)
+    } catch {}
+  }
 
   const fetchPlaces = async (location) => {
     setLoading(true)
@@ -131,6 +153,7 @@ export default function Home() {
           onCreated={() => fetchPlaces(userLocation)}
         />
       )}
+      {showWelcome && <WelcomeModal onClose={dismissWelcome} />}
       <div className={styles.main}>
         <Sidebar
           places={filtered}
