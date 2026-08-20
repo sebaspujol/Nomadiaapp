@@ -78,17 +78,18 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
   // Cargar Leaflet + el plugin de clustering dinámicamente (no funcionan en
   // SSR, necesitan `window`). El plugin se engancha al mismo objeto L de
   // leaflet, por eso hay que cargar los dos juntos antes de usar cualquiera.
-  useEffect(() => {
+useEffect(() => {
     let cancelled = false
-    Promise.all([import('leaflet'), import('leaflet.markercluster')])
-      .then(([leafletModule]) => {
+    import('leaflet')
+      .then((leafletModule) => {
         if (cancelled) return
-        // Importante: leaflet.markercluster le agrega el método
-        // markerClusterGroup al objeto L real DESPUÉS de que Next.js ya tomó
-        // una copia superficial de sus propiedades para el namespace del
-        // import — por eso hay que usar siempre `.default` (el objeto
-        // original y mutable), no el namespace, o el método nunca aparece.
-        leafletRef.current = leafletModule.default || leafletModule
+        const L = leafletModule.default || leafletModule
+        window.L = L
+        return import('leaflet.markercluster').then(() => L)
+      })
+      .then((L) => {
+        if (cancelled) return
+        leafletRef.current = L
         setReady(true)
       })
       .catch((err) => {
