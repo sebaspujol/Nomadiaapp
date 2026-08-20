@@ -1,4 +1,5 @@
 'use client'
+import { useLang } from '../lib/i18n'
 import styles from './Filters.module.css'
 
 const ICONS = {
@@ -25,52 +26,53 @@ const ICONS = {
   ),
 }
 
-const TIPOS = [
-  { key: 'all', label: 'Todos' },
-  { key: 'cafe', label: 'Cafés' },
-  { key: 'cowork', label: 'Coworks' },
-  { key: 'hotel', label: 'Hoteles' },
-  { key: 'biblioteca', label: 'Bibliotecas' },
-]
-
 export default function Filters({ filters, setFilters }) {
+  const { t } = useLang()
   const update = (key, value) => setFilters(f => ({ ...f, [key]: value }))
 
   const toggleBool = (key) => update(key, !filters[key])
 
+  const TIPOS = [
+    { key: 'all', label: t('allTypes') },
+    { key: 'cafe', label: t('cafes') },
+    { key: 'cowork', label: t('coworks') },
+    { key: 'hotel', label: t('hoteles') },
+    { key: 'biblioteca', label: t('bibliotecas') },
+  ]
+
   return (
     <div className={styles.wrap}>
       <div className={styles.row}>
-        {TIPOS.map(t => (
+        {TIPOS.map(tipo => (
           <button
-            key={t.key}
-            className={`${styles.chip} ${filters.tipo === t.key ? styles.active : ''}`}
-            onClick={() => update('tipo', t.key)}
+            key={tipo.key}
+            className={`${styles.chip} ${filters.tipo === tipo.key ? styles.active : ''}`}
+            onClick={() => update('tipo', tipo.key)}
           >
-            {ICONS[t.key]}
-            {t.label}
+            {ICONS[tipo.key]}
+            {tipo.label}
           </button>
         ))}
         <div className={styles.divider} />
         <button className={`${styles.chip} ${filters.enchufes ? styles.active : ''}`} onClick={() => toggleBool('enchufes')}>
-          {ICONS.enchufes}Enchufes
+          {ICONS.enchufes}{t('filterEnchufes')}
         </button>
         <button className={`${styles.chip} ${filters.wifi ? styles.active : ''}`} onClick={() => toggleBool('wifi')}>
-          {ICONS.wifi}Wifi rápido
+          {ICONS.wifi}{t('filterWifi')}
         </button>
         <button className={`${styles.chip} ${filters.silencio ? styles.active : ''}`} onClick={() => toggleBool('silencio')}>
-          Silencio y concentración
+          {t('filterSilencio')}
         </button>
         <button className={`${styles.chip} ${filters.mesa ? styles.active : ''}`} onClick={() => toggleBool('mesa')}>
-          Mesa larga
+          {t('filterMesa')}
         </button>
         <button className={`${styles.chip} ${filters.gratis ? styles.active : ''}`} onClick={() => toggleBool('gratis')}>
-          Gratis sentarse
+          {t('filterGratis')}
         </button>
       </div>
 
       <div className={styles.priceRow}>
-        <span className={styles.label}>Precio máx:</span>
+        <span className={styles.label}>{t('priceMax')}</span>
         <input
           type="range" min="0" max="30" step="1"
           value={filters.maxPrice}
@@ -78,11 +80,11 @@ export default function Filters({ filters, setFilters }) {
           onChange={e => update('maxPrice', parseInt(e.target.value))}
         />
         <span className={styles.priceVal}>
-          {filters.maxPrice >= 30 ? 'Cualquiera' : `hasta €${filters.maxPrice}`}
+          {filters.maxPrice >= 30 ? t('priceAny') : t('priceUpTo')(filters.maxPrice)}
         </span>
         <label className={styles.toggle}>
           <input type="checkbox" checked={filters.onlyOpen} onChange={() => toggleBool('onlyOpen')} />
-          Solo abiertos ahora
+          {t('onlyOpenNow')}
         </label>
       </div>
     </div>

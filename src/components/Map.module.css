@@ -70,6 +70,14 @@
 .zoomCtl button { display: block; width: 38px; height: 38px; font-size: 16px; border-bottom: 1px solid var(--line); color: #374151; }
 .zoomCtl button:last-child { border-bottom: none; }
 
+.locateCtl {
+  position: absolute; right: 18px; bottom: 82px; width: 38px; height: 38px;
+  background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,.12);
+  display: flex; align-items: center; justify-content: center; z-index: 4; color: #374151;
+}
+.locateCtl.active { color: #3B82F6; }
+.locateCtl:disabled { opacity: .5; }
+
 .userDot {
   position: absolute; width: 14px; height: 14px; border-radius: 50%; background: #3B82F6;
   border: 3px solid #fff; left: 44%; top: 52%; transform: translate(-50%, -50%);

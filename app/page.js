@@ -13,6 +13,8 @@ export default function Home() {
   const [selected, setSelected] = useState(null)
   const [userLocation, setUserLocation] = useState({ lat: 40.4168, lng: -3.7038 }) // Madrid centro default
   const [accuracy, setAccuracy] = useState(null)
+  const [locating, setLocating] = useState(false)
+  const [locateError, setLocateError] = useState('')
   const [loading, setLoading] = useState(false)
   const [showAddPlace, setShowAddPlace] = useState(false)
   const [filters, setFilters] = useState({
@@ -70,6 +72,36 @@ export default function Home() {
     setUserLocation({ lat, lng })
   }, [])
 
+  // Botón "ubicarme" del mapa: vuelve a pedirle al navegador la posición
+  // exacta (por si la primera vez el usuario todavía no había aceptado el
+  // permiso, o se movió de lugar) y centra el mapa ahí. Si el navegador
+  // niega el permiso o falla, se avisa en vez de quedar en silencio.
+  const handleLocateMe = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocateError('Tu navegador no admite geolocalización')
+      return
+    }
+    setLocating(true)
+    setLocateError('')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setSelected(null)
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setAccuracy(pos.coords.accuracy || null)
+        setLocating(false)
+      },
+      (err) => {
+        setLocating(false)
+        setLocateError(
+          err.code === 1
+            ? 'Le negaste el permiso de ubicación al navegador — habilitalo desde la configuración del sitio para usar esto'
+            : 'No pudimos obtener tu ubicación, probá de nuevo'
+        )
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    )
+  }, [])
+
   // Aplicar filtros
   useEffect(() => {
     const now = new Date()
@@ -117,7 +149,12 @@ export default function Home() {
           userLocation={userLocation}
           accuracy={accuracy}
           loading={loading}
+          onLocateMe={handleLocateMe}
+          locating={locating}
         />
+        {locateError && (
+          <div className={styles.locateError} role="alert">{locateError}</div>
+        )}
       </div>
     </div>
   )

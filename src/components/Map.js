@@ -13,6 +13,7 @@
 // con el emoji de la categoría, sin precio ni texto — el detalle completo
 // se ve en el panel lateral al hacer click.
 import { useEffect, useRef, useState } from 'react'
+import { useLang } from '../lib/i18n'
 import styles from './Map.module.css'
 
 const TYPE_COLORS = {
@@ -29,11 +30,11 @@ const TYPE_EMOJI = {
   biblioteca: '📚',
 }
 
-const LEGEND = [
-  { tipo: 'cafe', label: 'Cafés' },
-  { tipo: 'cowork', label: 'Coworks' },
-  { tipo: 'hotel', label: 'Hoteles' },
-  { tipo: 'biblioteca', label: 'Bibliotecas' },
+const LEGEND_KEYS = [
+  { tipo: 'cafe', key: 'cafes' },
+  { tipo: 'cowork', key: 'coworks' },
+  { tipo: 'hotel', key: 'hoteles' },
+  { tipo: 'biblioteca', key: 'bibliotecas' },
 ]
 
 function pinEmoji(place) {
@@ -65,7 +66,9 @@ function clusterIconHtml(count) {
   }
 }
 
-export default function Map({ places, selected, onSelect, userLocation, accuracy, loading }) {
+export default function Map({ places, selected, onSelect, userLocation, accuracy, loading, onLocateMe, locating }) {
+  const { t } = useLang()
+  const LEGEND = LEGEND_KEYS.map((l) => ({ tipo: l.tipo, label: t(l.key) }))
   const mapRef = useRef(null)
   const mapInstance = useRef(null)
   const leafletRef = useRef(null)
@@ -78,8 +81,12 @@ export default function Map({ places, selected, onSelect, userLocation, accuracy
   // Cargar Leaflet + el plugin de clustering dinámicamente (no funcionan en
   // SSR, necesitan `window`). El plugin se engancha al mismo objeto L de
   // leaflet, por eso hay que cargar los dos juntos antes de usar cualquiera.
-useEffect(() => {
+  useEffect(() => {
     let cancelled = false
+    // Importante: leaflet.markercluster busca el objeto de Leaflet como
+    // variable global `window.L` (no como algo que se le pase por import) —
+    // por eso hay que cargar 'leaflet' primero, colgarlo de window.L, y
+    // SOLO DESPUÉS importar el plugin. Si no, tira "L is not defined".
     import('leaflet')
       .then((leafletModule) => {
         if (cancelled) return
@@ -132,7 +139,7 @@ useEffect(() => {
       html: `<div style="width:14px;height:14px;border-radius:50%;background:#3B82F6;border:3px solid #fff;box-shadow:0 0 0 6px rgba(59,130,246,.2);"></div>`,
       iconSize: [14, 14],
       iconAnchor: [7, 7],
-        })
+    })
     userMarker.current = L.marker([userLocation.lat, userLocation.lng], { icon, zIndexOffset: 999 }).addTo(mapInstance.current)
 
     // El círculo muestra el margen de error real del GPS/wifi del dispositivo
@@ -214,6 +221,18 @@ useEffect(() => {
           <div key={l.tipo}><span className={styles.catDot} style={{ background: TYPE_COLORS[l.tipo] }} />{l.label}</div>
         ))}
       </div>
+      <button
+        className={`${styles.locateCtl} ${locating ? styles.active : ''}`}
+        onClick={onLocateMe}
+        disabled={locating}
+        title={t('locateMe')}
+        aria-label={t('locateMe')}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </svg>
+      </button>
       <div className={styles.zoomCtl}>
         <button onClick={() => zoomBy(1)}>+</button>
         <button onClick={() => zoomBy(-1)}>−</button>
@@ -224,6 +243,8 @@ useEffect(() => {
 
 // Mapa estático SVG de respaldo, solo por si Leaflet no pudo cargar.
 function StaticMap({ places, selected, onSelect, loading }) {
+  const { t } = useLang()
+  const LEGEND = LEGEND_KEYS.map((l) => ({ tipo: l.tipo, label: t(l.key) }))
   const fallbackPositions = [
     { left: 30, top: 28 }, { left: 46, top: 44 }, { left: 62, top: 32 },
     { left: 38, top: 60 }, { left: 70, top: 55 }, { left: 22, top: 48 },

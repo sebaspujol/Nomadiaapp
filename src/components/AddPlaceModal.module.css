@@ -5,7 +5,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  /* Leaflet usa z-index internos altos para sus paneles (tiles, clusters,
+     popups pueden llegar a 700+) — con menos que eso el mapa se veía "por
+     encima" del fondo oscuro y quedaba clickeable detrás del modal. */
+  z-index: 2000;
   padding: 20px;
 }
 

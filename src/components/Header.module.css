@@ -70,6 +70,10 @@
   white-space: nowrap;
 }
 .langSwitch b { color: var(--ink); }
+.langActive { color: var(--ink); font-weight: 800; }
+.langInactive { color: var(--muted); font-weight: 600; }
+.langActive, .langInactive { background: none; border: none; padding: 0; cursor: pointer; font-size: 12px; }
+.langInactive:hover { color: var(--ink); }
 
 .points {
   font-family: var(--mono); font-size: 12.5px; font-weight: 700; color: var(--accent-d);

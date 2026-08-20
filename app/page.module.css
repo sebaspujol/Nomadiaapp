@@ -11,3 +11,19 @@
   flex: 1;
   overflow: hidden;
 }
+
+.locateError {
+  position: fixed;
+  top: 78px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: #fff;
+  font-size: 13px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.25);
+  z-index: 2500;
+  max-width: 90vw;
+  text-align: center;
+}

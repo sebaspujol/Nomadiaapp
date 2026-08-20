@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
+import { useLang } from '../lib/i18n'
 import styles from './Header.module.css'
 
 // Solo para decidir si mostramos el ícono del dashboard en el header — el
@@ -12,6 +13,7 @@ const ADMIN_UI_EMAILS = ['spujol@riamoneytransfer.com']
 
 export default function Header({ onSearchCity, onAddPlace }) {
   const { data: session, status } = useSession()
+  const { lang, setLang, t } = useLang()
   const [query, setQuery] = useState('')
   const [searching, setSearching] = useState(false)
   const [points, setPoints] = useState(null)
@@ -56,20 +58,20 @@ export default function Header({ onSearchCity, onAddPlace }) {
           <input
             className={styles.searchInput}
             type="text"
-            placeholder={searching ? 'Buscando...' : 'Buscá una ciudad...'}
+            placeholder={searching ? t('searching') : t('searchPlaceholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <span className={styles.sub}>Cualquier zona</span>
+          <span className={styles.sub}>{t('anyZone')}</span>
         </div>
         <div className={styles.searchSeg}>
-          Todos
-          <span className={styles.sub}>Café, cowork, hotel...</span>
+          {t('allTypes')}
+          <span className={styles.sub}>{t('typeSub')}</span>
         </div>
         <div className={styles.searchSeg}>
-          Filtros
-          <span className={styles.sub}>Enchufes, wifi, silencio...</span>
+          {t('filtersWord')}
+          <span className={styles.sub}>{t('filtersSub')}</span>
         </div>
         <button className={styles.searchGo} onClick={runSearch} title="Buscar">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
@@ -85,10 +87,24 @@ export default function Header({ onSearchCity, onAddPlace }) {
             <circle cx="12" cy="12" r="9" />
             <path d="M3 12h18M12 3c2.5 2.7 2.5 14.3 0 18M12 3c-2.5 2.7-2.5 14.3 0 18" />
           </svg>
-          <b>ES</b> / EN / PT
+          <button
+            type="button"
+            onClick={() => setLang('es')}
+            className={lang === 'es' ? styles.langActive : styles.langInactive}
+          >
+            ES
+          </button>
+          {' / '}
+          <button
+            type="button"
+            onClick={() => setLang('en')}
+            className={lang === 'en' ? styles.langActive : styles.langInactive}
+          >
+            EN
+          </button>
         </div>
         {points != null && (
-          <span className={styles.points} title="Tus puntos por reviews">★ {points} pts</span>
+          <span className={styles.points} title="Tus puntos por reviews">★ {points} {t('pts')}</span>
         )}
         <button
           className={styles.btnAdd}
@@ -101,7 +117,7 @@ export default function Header({ onSearchCity, onAddPlace }) {
             onAddPlace?.()
           }}
         >
-          + Añadir lugar
+          {t('addPlace')}
         </button>
         {status === 'authenticated' && ADMIN_UI_EMAILS.includes((session.user.email || '').toLowerCase()) && (
           <Link href="/admin" className={styles.adminLink} title="Dashboard de métricas">
